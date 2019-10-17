@@ -1,0 +1,29 @@
+<!--index.wxml-->
+<view>
+  <view class="dtc_container">
+    <view class="dtc_function_item">
+      <view bindtap="qr_dtc_click">
+        <image src="../../images/ic_vehicle_management.png" />
+        <text>车辆管理</text>
+      </view>
+    </view>
+    <view class="dtc_function_item">
+      <view bindtap="qr_dtc_click">
+        <image src="../../images/ic_user_management.png" />
+        <text>用户管理</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view wx:for="{{functions}}" wx:for-index="index" wx:for-item="item" wx:key="key">
+  <navigator url="{{item.url}}">
+    <view class="item">
+      <image class="poster" src="{{item.image}}" />
+      <view class="meta">
+        <text class="title">{{item.title}}</text>
+        <text class="sub-title">{{item.subtitle}}</text>
+      </view>
+    </view>
+  </navigator>
+</view>
