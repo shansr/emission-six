@@ -1,0 +1,51 @@
+<!--pages/monitor/monitor.wxml-->
+<view>
+  <map id="myMap" style="width: 100%; height: 100vh;" markers="{{markers}}" covers="{{covers}}" show-location latitude="{{latitude}}" longitude="{{longitude}}" polyline="{{polylines}}"></map>
+
+  <view class="float_menu">
+    <image src="../../images/ic_vehicle_list.png" style="height:70rpx;width:70rpx;margin:4rpx;" bindtap="vehicleListClick"></image>
+    <image src="../../images/ic_locate.png" style="height:70rpx;width:70rpx;margin:4rpx;" bindtap="myLocationClick"></image>
+  </view>
+</view>
+<i-drawer mode="right"  visible="{{isListShow}}" bind:close="vehicleListClick">
+  <scroll-view class="drawer-container" scroll-y>
+    <i-panel title="所属车辆列表">
+      <i-cell-group>
+        <i-cell wx:for="{{myVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" title="{{item.plateNo}}">
+          <i-row>
+            <i-col span="14">
+              <text>{{item.vin}}</text>
+            </i-col>
+          </i-row>
+          <i-row>
+            <i-col span="5">
+              <text bindtap="vehicleItemMonitorClick" data-vin="{{item.vin}}">监控</text>
+            </i-col>
+            <i-col span="5">
+              <text bindtap="vehicleItemDetailsClick" data-index="{{item.id}}">详情</text>
+            </i-col>
+          </i-row>
+        </i-cell>
+      </i-cell-group>
+    </i-panel>
+    <i-panel title="激活码车辆列表">
+      <i-cell-group>
+        <i-cell wx:for="{{authVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" title="{{item.plateNo}}">
+          <i-row>
+            <i-col span="14">
+              <text>{{item.vin}}</text>
+            </i-col>
+          </i-row>
+          <i-row>
+            <i-col span="5">
+              <text bindtap="vehicleItemMonitorClick" data-vin="{{item.vin}}">监控</text>
+            </i-col>
+            <i-col span="5">
+              <text bindtap="vehicleItemDetailsClick" data-index="{{item.id}}">详情</text>
+            </i-col>
+          </i-row>
+        </i-cell>
+      </i-cell-group>
+    </i-panel>
+  </scroll-view>
+</i-drawer>
