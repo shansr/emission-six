@@ -26,17 +26,16 @@ Page({
     var thisCtx = this
     wx.getStorage({
       key: 'userInfo',
-      success: function (res) {
+      success: function(res) {
         console.log(res)
         thisCtx.setData({
           hasUserInfo: true,
-          imageUrl: res.data.avatarUrl,
-          nickName: res.data.nickName,
+          imageUrl: res.data.imageUrl,
+          nickName: res.data.nickName
         })
       },
     })
   },
-
   /**
    * 生命周期函数--监听页面显示
    */
@@ -99,18 +98,52 @@ Page({
                     iv: res.iv
                   },
                   success: function (decryptRes) {
-                    //解密成功,设置变量与本地存储
-                    thisCtx.setData({
-                      imageUrl: res.userInfo.avatarUrl,
-                      nickName: res.userInfo.nickName,
-                    })
-                    wx.setStorage({
-                      key: 'userInfo',
-                      data: res.userInfo,
-                      success: function (e) {
-                        thisCtx.setData({
-                          hasUserInfo: true
-                        })
+                    //console.log(decryptRes)
+                    //解密成功,根据unionId获取用户信息，如果没有则注册
+                    wx.request({
+                      url: 'http://localhost:8080/user/getByWxId/' + decryptRes.data.unionId,
+                      success: function (getRes) {
+                        console.log(getRes)
+                        //本地数据库中无此人
+                        if (getRes.data.code == 2) {
+                          //进行注册
+                          wx.request({
+                            url: 'http://localhost:8080/user/registerByWx',
+                            data: {
+                              wxId: decryptRes.data.unionId,
+                              imageUrl: res.userInfo.avatarUrl,
+                              nickName: res.userInfo.nickName
+                            },
+                            success: function (regRes) {
+                              console.log(regRes)
+                              // 设置本地变量
+                              thisCtx.setData({
+                                imageUrl: regRes.data.msg.imageUrl,
+                                nickName: regRes.data.msg.nickName,
+                                hasUserInfo: true
+                              })
+                              // 写入本地存储
+                              var userInfo = {}
+                              userInfo.imageUrl = regRes.data.msg.imageUrl
+                              userInfo.nickName = regRes.data.msg.nickName
+                              userInfo.id = regRes.data.msg.id
+                              wx.setStorageSync("userInfo", userInfo)
+                            }
+                          })
+                        } else if (getRes.data.code == 1) {
+                          // 设置本地变量
+                          thisCtx.setData({
+                            imageUrl: getRes.data.msg.imageUrl,
+                            nickName: getRes.data.msg.nickName,
+                            hasUserInfo: true
+                          })
+                          // 写入本地存储
+                          var userInfo = {}
+                          userInfo.imageUrl = getRes.data.msg.imageUrl
+                          userInfo.nickName = getRes.data.msg.nickName
+                          userInfo.id = getRes.data.msg.id
+                          wx.setStorageSync("userInfo", userInfo)
+                        }
                       }
                     })
                   }

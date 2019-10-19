@@ -20,13 +20,13 @@
 </view>
 
 <view wx:for="{{functions}}" wx:for-index="index" wx:for-item="item" wx:key="key">
-  <navigator url="{{item.url}}">
-    <view class="item">
+  <!-- <navigator url="{{item.url}}"> -->
+    <view class="item" bindtap="functionItemClick" data-url="{{item.url}}">
       <image class="poster" src="{{item.image}}" />
       <view class="meta">
         <text class="title">{{item.title}}</text>
         <text class="sub-title">{{item.subtitle}}</text>
       </view>
     </view>
-  </navigator>
+  <!-- </navigator> -->
 </view>

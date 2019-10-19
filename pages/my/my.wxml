@@ -5,9 +5,12 @@
   <button open-type="getUserInfo" bindgetuserinfo="getUserInfo">您未登录，请先登录！</button>
 </view>
 <view wx:else class="userinfo-login">
-<block>
-    <image bindtap="bindViewTap" class="userinfo-avatar" src="{{imageUrl}}" mode="cover"></image>
-    <text class="userinfo-nickname">{{nickName}}</text>
+  <block>
+    <image class="userinfo-avatar" src="{{imageUrl}}" mode="cover"></image>
+    <view class="userinfo-detail">
+      <text>{{nickName}}</text>
+      <text wx:if="{{phoneNo!=null}}">{{phoneNo}}</text>
+    </view>
   </block>
 </view>
 

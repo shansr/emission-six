@@ -11,6 +11,11 @@
   flex-direction: row;
   align-items: center;
 }
+.userinfo-detail{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .userinfo-avatar {
   width: 128rpx;
   height: 128rpx;
