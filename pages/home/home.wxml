@@ -5,15 +5,15 @@
   <!-- <button open-type="getUserInfo" bindgetuserinfo='getUser'>授权用户信息</button> -->
   <view class="dtc_container">
     <view class="dtc_function_item">
-      <view bindtap="vehileManageClick">
+      <view bindtap="monitorClick">
         <image src="../../images/ic_vehicle_management.png" />
-        <text>车辆管理</text>
+        <text>监控</text>
       </view>
     </view>
     <view class="dtc_function_item">
-      <view bindtap="userManageClick">
-        <image src="../../images/ic_user_management.png" />
-        <text>用户管理</text>
+      <view bindtap="faultClick">
+        <image src="../../images/ic_fault.png" />
+        <text>OBD</text>
       </view>
     </view>
   </view>

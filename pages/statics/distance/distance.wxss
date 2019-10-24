@@ -1,0 +1,6 @@
+/* pages/statics/distance/distance.wxss */
+.drawer-container{
+	width:60vw;
+	height: 100vh;
+	background:#fff;
+}

@@ -10,11 +10,12 @@ Page({
     isListShow: false,
     latitude: 0,
     longitude: 0,
+    isSocketOpen: false,
     //points: '',
     polylines: [{
       points: [],
       dottedLine: false,
-      width: 8,
+      width: 4,
       color: '#5c95e6ff'
     }],
     markers: [{
@@ -22,33 +23,40 @@ Page({
       callout: {
         display: 'ALWAYS',
         textAlign: 'left',
-        padding: 8
+        padding: 4
       }
     }],
     myVehicles: [],
-    authVehicles: []
+    authVehicles: [],
+    currentVehicle:{},
+    scrollTop: 0
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function(options) {
+  onLoad: function (options) {
     var thisCtx = this
     var userInfo = wx.getStorageSync('userInfo')
     wx.request({
       url: 'http://localhost:8080/vehicle/getByOwner/' + userInfo.id,
-      success: function(e) {
-        thisCtx.setData({
-          myVehicles: e.data.message
-        })
+      success: function (e) {
+        //console.log(e.data.message)
+        if(e.data.code == 1){
+          thisCtx.setData({
+            myVehicles: e.data.message
+          })
+        }
       }
     })
     wx.request({
       url: 'http://localhost:8080/vehicle/getByAuth/' + userInfo.id,
-      success: function(e) {
-        thisCtx.setData({
-          authVehicles: e.data.message
-        })
+      success: function (e) {
+        if(e.data.code == 1){
+          thisCtx.setData({
+            authVehicles: e.data.message
+          })
+        }
       }
     })
   },
@@ -56,27 +64,28 @@ Page({
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function() {
-  },
+  onReady: function () { },
 
   /**
    * 生命周期函数--监听页面显示
    */
-  onShow: function() {
+  onShow: function () {
     var thisCtx = this
     mapCtx = wx.createMapContext('myMap')
     wx.authorize({
       scope: 'scope.address',
-      success: function(e) {
-        wx.onSocketMessage(function(res) {
+      success: function (e) {
+        wx.onSocketMessage(function (res) {
           var jsonObj = JSON.parse(res.data);
           //console.log(jsonObj)
           var point = util.transformFromWGSToGCJ(jsonObj.latitude, jsonObj.longitude)
-          var content = '车速：' + jsonObj.vehicleSpeed + ' Km/h\n' +
-            '转速：' + jsonObj.engineSpeed + ' rpm\n' + 
-            '总里程：' + jsonObj.totalTrip + ' Km\n' +
-            '大气压力：' + jsonObj.airPressure + ' kPa\n' + 
-            '冷却液温度：' + jsonObj.coolantTemperature + ' ℃\n'
+          var content = 
+            '车牌号：' + thisCtx.data.currentVehicle.vehicle.plateNo+"\n" + 
+            '车速：' + jsonObj.vehicleSpeed.toFixed(2) + ' Km/h\n' +
+            '转速：' + jsonObj.engineSpeed.toFixed(2) + ' rpm\n' +
+            '总里程：' + jsonObj.totalTrip.toFixed(2) + ' Km\n' +
+            '大气压力：' + jsonObj.airPressure.toFixed(2) + ' kPa\n' +
+            '冷却液温度：' + jsonObj.coolantTemperature.toFixed(2) + ' ℃\n'
 
           //thisCtx.data.polyline.points.push(point)
           thisCtx.setData({
@@ -87,16 +96,20 @@ Page({
             'markers[0].callout.content': content,
             'polylines[0].points': thisCtx.data.polylines[0].points.concat(point)
           })
-        })
-        console.log(e)
+        }),
+          console.log(e)
         wx.getLocation({
-          success: function(res) {
-            console.log(res)
+          success: function (res) {
+            //console.log(res)
             thisCtx.setData({
               latitude: res.latitude,
               longitude: res.longitude
             })
           },
+        })
+      },fail:function(e){
+        wx.navigateTo({
+          url: '../setting/setting',
         })
       }
     })
@@ -105,37 +118,42 @@ Page({
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide: function() {
+  onHide: function () {
 
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
-  onUnload: function() {
-    wx.closeSocket({
-
-    })
-
+  onUnload: function () {
+    if (this.data.isSocketOpen) {
+      wx.closeSocket({
+        success: function (e) {
+        },
+        fail: function (e) {
+          //console.log(e)
+        }
+      })
+    }
   },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh: function() {
+  onPullDownRefresh: function () {
 
   },
 
   /**
    * 页面上拉触底事件的处理函数
    */
-  onReachBottom: function() {
+  onReachBottom: function () {
 
   },
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function() {
+  onShareAppMessage: function () {
 
   },
   vehicleListClick() {
@@ -147,21 +165,49 @@ Page({
     console.log(e)
   },
   vehicleItemMonitorClick(e) {
+    var thisCtx = this
+    console.log(e)
+    thisCtx.setData({
+      currentVehicle: e.currentTarget.dataset
+    })
     this.vehicleListClick()
+    if (thisCtx.data.isSocketOpen) {
+      wx.closeSocket({
+        success: function (e) {
+          
+         },
+        fail: function (e) {
+          console.log(e)
+        }
+      })
+    }
     wx.connectSocket({
-      url: 'wss://wit.weichai.com:9999/iot/monitor/' + e.currentTarget.dataset.vin
+      url: 'wss://wit.weichai.com:9999/iot/monitor/' + e.currentTarget.dataset.vehicle.vin,
+      success: function (e) {
+        thisCtx.setData({
+          isSocketOpen: true
+        })
+      }
+    })
+    thisCtx.setData({
+      'polylines[0].points': []
     })
   },
   myLocationClick() {
     var thisCtx = this
     wx.getLocation({
-      success: function(res) {
+      success: function (res) {
         console.log(res)
         thisCtx.setData({
           latitude: res.latitude,
           longitude: res.longitude
         })
       },
+    })
+  }, 
+  onPageScroll(event) {
+    this.setData({
+      scrollTop: event.scrollTop
     })
   }
 })

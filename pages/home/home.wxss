@@ -68,8 +68,8 @@
   cursor: pointer;
 }
 .item .poster {
-  width: 96rpx;
-  height: 96rpx;
+  width: 88rpx;
+  height: 88rpx;
   margin: 16rpx;
 }
 .item .meta {
