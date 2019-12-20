@@ -1,12 +1,20 @@
-// pages/vehicle/vehicle.js
+// pages/obd/obd.js
+var mapCtx
+var util = require('../../utils/WSCoordinate.js')
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    myVehicles:[],
-    authVehicles:[],
+    isListShow: false,
+    latitude: 0,
+    longitude: 0,
+    isSocketOpen: false,
+    myVehicles: [],
+    authVehicles: [],
+    currentVehicle: {},
+    obd: {},
     scrollTop: 0
   },
 
@@ -19,10 +27,23 @@ Page({
     wx.request({
       url: 'https://wit.weichai.com/vehicle/getByOwner/' + userInfo.id,
       success: function (e) {
-        //console.log(e.data.message)
         if (e.data.code == 1) {
           thisCtx.setData({
             myVehicles: e.data.message
+          })
+          wx.request({
+            url: 'https://wit.weichai.com/obd/get/' + thisCtx.data.myVehicles[0].vin + "/6",
+            success: function (ee) {
+              if (ee.data.code == 1) {
+                thisCtx.setData({
+                  obd: ee.data.msg
+                })
+              } else{
+                thisCtx.setData({
+                  obd: {}
+                })
+              }
+            }
           })
         }
       }
@@ -42,9 +63,7 @@ Page({
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
-  onReady: function () {
-
-  },
+  onReady: function () { },
 
   /**
    * 生命周期函数--监听页面显示
@@ -80,22 +99,41 @@ Page({
   onReachBottom: function () {
 
   },
-
   /**
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
 
   },
+  vehicleListClick() {
+    this.setData({
+      isListShow: !this.data.isListShow
+    })
+  },
+  vehicleItemClick(e) {
+    //console.log(e.currentTarget.dataset.vehicle.vin)
+    var thisCtx = this
+    this.vehicleListClick()
+    wx.request({
+      url: 'https://wit.weichai.com/obd/get/' + e.currentTarget.dataset.vehicle.vin + "/6",
+      success: function (ee) {
+        //console.log(ee.data.msg)
+        if (ee.data.code == 1) {
+          thisCtx.setData({
+            obd: ee.data.msg
+          })
+        } else {
+          thisCtx.setData({
+            obd: {}
+          })
+        }
+        //console.log(thisCtx.data.obd)
+      }
+    })
+  },
   onPageScroll(event) {
     this.setData({
       scrollTop: event.scrollTop
-    })
-  },
-  vehicleItemClick(e){
-    console.log(e)
-    wx.navigateTo({
-      url: './details/details?vin='+ e.currentTarget.dataset.vehicle.vin,
     })
   }
 })

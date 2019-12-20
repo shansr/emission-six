@@ -78,10 +78,14 @@ Page({
     var thisCtx = this
     var userInfo = wx.getStorageSync('userInfo')
     wx.request({
-      url: 'http://localhost:8080/code/active/' + userInfo.id + "/" + thisCtx.data.inputCode,
+      url: 'https://wit.weichai.com/code/active/' + userInfo.id + "/" + thisCtx.data.inputCode,
       success: function (e) {
         switch (e.data.code) {
           case 1:
+            wx.showToast({
+              title: '激活成功',
+              icon: 'none'
+            })
             break
           case 2:
             wx.showToast({

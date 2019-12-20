@@ -8,9 +8,77 @@ function initChart(canvas, width, height) {
   });
   canvas.setChart(chart)
   thisChart = chart
+  var option = createEmptyOption('请选择车辆')
+  thisChart.setOption(option,true)
   return chart
 }
+
+function createEmptyOption(name){
+  var option = {
+    title: {
+      text: name,
+      left: 'center'
+    },
+    color: ['#3398DB'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+        type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+      },
+      position: function (point, params, dom, rect, size) {
+        // 鼠标坐标和提示框位置的参考坐标系是：以外层div的左上角那一点为原点，x轴向右，y轴向下
+        // 提示框位置
+        var x = 0 // x坐标位置
+
+        // 当前鼠标位置
+        var pointX = point[0]
+        // 外层div大小
+        var viewWidth = size.viewSize[0]
+
+        // 提示框大小
+        var boxWidth = size.contentSize[0]
+        if (boxWidth > pointX) {
+          x = 5;
+        } else { // 左边放的下
+          x = pointX - boxWidth
+        }
+        return [x, point[1]]
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: {},
+        axisTick: {
+          alignWithLabel: true
+        }
+      }
+    ],
+    yAxis: [
+      {
+        type: 'value'
+      }
+    ],
+    series: [
+      {
+        name: "",
+        type: 'bar',
+        barWidth: '50%',
+        data: {}
+      }
+    ]
+  }
+  return option
+}
+
 function createOption(name, data) {
+  console.log(data)
   var option = {
     title: {
       text: name,
@@ -94,20 +162,21 @@ Page({
 
     var thisCtx = this
     var userInfo = wx.getStorageSync('userInfo')
+    console.log(userInfo)
     wx.request({
-      url: 'http://localhost:8080/vehicle/getByOwner/' + userInfo.id,
+      url: 'https://wit.weichai.com/vehicle/getByOwner/' + userInfo.id,
       success: function (e) {
         //console.log(e.data.message)
         if (e.data.code == 1) {
-          var plateNo = e.data.message[0].plateNo
-          wx.request({
-            url: 'http://localhost:8080/statics/distance/'+ e.data.message[0].vin +'/6',
-            success: function (e) {
-              console.log(e)
-              var option = createOption(plateNo + '日均公里数/Km', e.data.msg)
-              thisChart.setOption(option, true)
-            }
-          })
+          // var plateNo = e.data.message[0].plateNo
+          // wx.request({
+          //   url: 'http://localhost:8080/statics/distance/'+ e.data.message[0].vin +'/6',
+          //   success: function (e) {
+          //     console.log(e)
+          //     var option = createOption(plateNo + '日均公里数(Km)', e.data.msg)
+          //     thisChart.setOption(option, true)
+          //   }
+          // })
           thisCtx.setData({
             myVehicles: e.data.message
           })
@@ -115,7 +184,7 @@ Page({
       }
     })
     wx.request({
-      url: 'http://localhost:8080/vehicle/getByAuth/' + userInfo.id,
+      url: 'https://wit.weichai.com/vehicle/getByAuth/' + userInfo.id,
       success: function (e) {
         if (e.data.code == 1) {
           thisCtx.setData({
@@ -124,7 +193,6 @@ Page({
         }
       }
     })
-
     
   },
 
@@ -132,14 +200,14 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-
+   
   },
 
   /**
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    
   },
 
   /**
@@ -182,15 +250,26 @@ Page({
     })
   },
   vehicleItemClick(e) {
-    this.vehicleListClick()
+    // this.vehicleListClick()
     //console.log(e.currentTarget.dataset.vehicle.vin)
+    wx.showLoading({
+      title: '数据加载中',
+    })
     var plateNo = e.currentTarget.dataset.vehicle.plateNo
     wx.request({
-      url: 'http://localhost:8080/statics/distance/' + e.currentTarget.dataset.vehicle.vin + '/6',
+      url: 'https://wit.weichai.com/statics/distance/' + e.currentTarget.dataset.vehicle.vin + '/6',
       success: function (e) {
+        wx.hideLoading()
         //console.log(e)
-        var option = createOption(plateNo +'日均公里数/Km\n', e.data.msg)
-        thisChart.setOption(option, true)
+        if(e.data.code == 1){
+          var option = createOption(plateNo + '日均公里数(Km)', e.data.msg)
+          thisChart.setOption(option, true)
+        } else if (e.data.code == 2) {
+          wx.showToast({
+            title: '无统计数据',
+            icon:'none'
+          })
+        }
       }
     })
   }

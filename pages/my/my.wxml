@@ -24,7 +24,7 @@
   <i-panel class="my-item" title="车辆">
     <i-cell-group >
       <i-cell title="激活码" is-link url="/pages/vehicle/code/code"></i-cell>
-      <i-cell title="车辆绑定" is-link url="/pages/dashboard/index"></i-cell>
+      <!-- <i-cell title="车辆绑定" is-link url="/pages/dashboard/index"></i-cell> -->
     </i-cell-group>
   </i-panel>
   <i-panel class="my-item" title="设置">

@@ -16,10 +16,15 @@
         </view>
         <view slot="content">
           <i-cell-group>
-            <i-cell wx:for="{{myVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" is-link  data-vehicle="{{item}}">
+            <i-cell wx:for="{{myVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" is-link  data-vehicle="{{item}}" bindtap="vehicleItemMonitorClick">
               <i-row>
                 <i-col span="12">
                   <text>{{item.plateNo}}</text>
+                </i-col>
+                <i-col span="12">
+                  <!-- <text>{{item.status==1 ? "在线" : "不在线"}}</text> -->
+                  <image class="loc" src="../../images/ic_offline.png" wx:if="{{item.status == null || item.status == 0}}"/>
+                  <image class="loc" src="../../images/ic_online.png" wx:else/>
                 </i-col>
               </i-row>
               <i-row>
@@ -27,14 +32,14 @@
                   <text>{{item.vin}}</text>
                 </i-col>
               </i-row>
-              <i-row>
+              <!-- <i-row>
                 <i-col span="5">
                   <text bindtap="vehicleItemMonitorClick" data-vehicle="{{item}}">监控</text>
                 </i-col>
                 <i-col span="5">
                   <text bindtap="vehicleItemDetailsClick" data-index="{{item.id}}">详情</text>
                 </i-col>
-              </i-row>
+              </i-row> -->
             </i-cell>
           </i-cell-group>
         </view>
@@ -45,10 +50,14 @@
         </view>
         <view slot="content">
           <i-cell-group>
-            <i-cell wx:for="{{authVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" is-link  data-vehicle="{{item}}">
+            <i-cell wx:for="{{authVehicles}}" wx:for-index="index" wx:for-item="item" wx:key="key" is-link  data-vehicle="{{item}}" bindtap="vehicleItemMonitorClick">
               <i-row>
                 <i-col span="12">
                   <text>{{item.plateNo}}</text>
+                </i-col>
+                <i-col span="12">
+                  <image class="loc" src="../../images/ic_offline.png" wx:if="{{item.status == null || item.status==0}}"/>
+                  <image class="loc" src="../../images/ic_online.png" wx:else/>
                 </i-col>
               </i-row>
               <i-row>
@@ -58,6 +67,14 @@
               </i-row>
             </i-cell>
           </i-cell-group>
+        </view>
+      </i-sticky-item>
+      <i-sticky-item wx-if="{{myVehicles.length == 0 && authVehicles.length == 0}}">
+        <view slot="title">
+          无车辆
+        </view>
+        <view slot="content">
+          <text>未获取到车辆列表，请绑定激活码</text>
         </view>
       </i-sticky-item>
     </i-sticky>

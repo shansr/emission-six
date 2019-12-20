@@ -4,7 +4,7 @@
 		"ignore": []
 	},
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
@@ -21,7 +21,7 @@
 		}
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.9.0",
+	"libVersion": "2.9.4",
 	"appid": "wxa2ba4cdb3bfed9f9",
 	"projectname": "emission-six",
 	"debugOptions": {

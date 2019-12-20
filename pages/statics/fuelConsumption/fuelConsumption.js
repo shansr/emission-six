@@ -1,18 +1,193 @@
 // pages/statics/fuelConsumption/fuelConsumption.js
+import * as echarts from '../../../ec-canvas/echarts'
+var thisChart
+function initChart(canvas, width, height) {
+  const chart = echarts.init(canvas, null, {
+    width: width,
+    height: height
+  });
+  canvas.setChart(chart)
+  thisChart = chart
+  var option = createEmptyOption('请选择车辆')
+  thisChart.setOption(option, true)
+  return chart
+}
+function createEmptyOption(name) {
+  var option = {
+    title: {
+      text: name,
+      left: 'center'
+    },
+    color: ['#3398DB'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+        type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+      },
+      position: function (point, params, dom, rect, size) {
+        // 鼠标坐标和提示框位置的参考坐标系是：以外层div的左上角那一点为原点，x轴向右，y轴向下
+        // 提示框位置
+        var x = 0 // x坐标位置
+
+        // 当前鼠标位置
+        var pointX = point[0]
+        // 外层div大小
+        var viewWidth = size.viewSize[0]
+
+        // 提示框大小
+        var boxWidth = size.contentSize[0]
+        if (boxWidth > pointX) {
+          x = 5;
+        } else { // 左边放的下
+          x = pointX - boxWidth
+        }
+        return [x, point[1]]
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: {},
+        axisTick: {
+          alignWithLabel: true
+        }
+      }
+    ],
+    yAxis: [
+      {
+        type: 'value'
+      }
+    ],
+    series: [
+      {
+        name: "",
+        type: 'bar',
+        barWidth: '50%',
+        data: {}
+      }
+    ]
+  }
+  return option
+}
+function createOption(name, data) {
+  var option = {
+    title: {
+      text: name,
+      left: 'center'
+    },
+    color: ['#3398DB'],
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+        type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+      },
+      position: function (point, params, dom, rect, size) {
+        // 鼠标坐标和提示框位置的参考坐标系是：以外层div的左上角那一点为原点，x轴向右，y轴向下
+        // 提示框位置
+        var x = 0 // x坐标位置
+
+        // 当前鼠标位置
+        var pointX = point[0]
+        // 外层div大小
+        var viewWidth = size.viewSize[0]
+
+        // 提示框大小
+        var boxWidth = size.contentSize[0]
+        if (boxWidth > pointX) {
+          x = 5;
+        } else { // 左边放的下
+          x = pointX - boxWidth
+        }
+        return [x, point[1]]
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: [
+      {
+        type: 'category',
+        data: data.values[0],
+        axisTick: {
+          alignWithLabel: true
+        }
+      }
+    ],
+    yAxis: [
+      {
+        type: 'value'
+      }
+    ],
+    series: [
+      {
+        name: data.keys[1],
+        type: 'bar',
+        barWidth: '50%',
+        data: data.values[1]
+      }
+    ]
+  }
+  return option
+}
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-
+    ec: {
+      onInit: initChart
+    },
+    isListShow: false,
+    myVehicles: [],
+    authVehicles: []
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    var thisCtx = this
+    var userInfo = wx.getStorageSync('userInfo')
+    wx.request({
+      url: 'https://wit.weichai.com/vehicle/getByOwner/' + userInfo.id,
+      success: function (e) {
+        //console.log(e.data.message)
+        if (e.data.code == 1) {
+          // var plateNo = e.data.message[0].plateNo
+          // wx.request({
+          //   url: 'https://wit.weichai.com/statics/fuelConsumption/' + e.data.message[0].vin + '/6',
+          //   success: function (e) {
+          //     console.log(e)
+          //     var option = createOption(plateNo + '日均油耗(L/100Km)', e.data.msg)
+          //     thisChart.setOption(option, true)
+          //   }
+          // })
+          thisCtx.setData({
+            myVehicles: e.data.message
+          })
+        }
+      }
+    })
+    wx.request({
+      url: 'https://wit.weichai.com/vehicle/getByAuth/' + userInfo.id,
+      success: function (e) {
+        if (e.data.code == 1) {
+          thisCtx.setData({
+            authVehicles: e.data.message
+          })
+        }
+      }
+    })
   },
 
   /**
@@ -62,5 +237,34 @@ Page({
    */
   onShareAppMessage: function () {
 
+  },
+  vehicleListClick() {
+    this.setData({
+      isListShow: !this.data.isListShow
+    })
+  },
+  vehicleItemClick(e) {
+    //this.vehicleListClick()
+    //console.log(e.currentTarget.dataset.vehicle.vin)
+    wx.showLoading({
+      title: '数据加载中',
+    })
+    var plateNo = e.currentTarget.dataset.vehicle.plateNo
+    wx.request({
+      url: 'https://wit.weichai.com/statics/fuelConsumption/' + e.currentTarget.dataset.vehicle.vin + '/6',
+      success: function (e) {
+        console.log(e)
+        wx.hideLoading()
+        if(e.data.code == 1){
+          var option = createOption(plateNo + '日均油耗(L/100Km)', e.data.msg)
+          thisChart.setOption(option, true)
+        } else if (e.data.code == 2) {
+          wx.showToast({
+            title: '无统计数据',
+            icon: 'none'
+          })
+        }
+      }
+    })
   }
 })

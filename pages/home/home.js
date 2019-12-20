@@ -88,14 +88,39 @@ Page({
 
   },
   faultClick: function () {
-    wx.navigateTo({
-      url: '../../pages/my/my'
+    //console.log("Hello")
+   
+    wx.getStorage({
+      key: 'userInfo',
+      success: function (res) {
+        wx.navigateTo({
+          url: '../../pages/obd/obd'
+        })
+      },
+      fail: function (res) {
+        wx.showToast({
+          title: '您未登录，请先登录',
+          icon: 'none'
+        })
+      }
     })
   },
   monitorClick: function () {
-    wx.navigateTo({
-      url: '../../pages/monitor/monitor'
+    wx.getStorage({
+      key: 'userInfo',
+      success: function (res) {
+        wx.navigateTo({
+          url: '../../pages/monitor/monitor'
+        })
+      },
+      fail: function (res) {
+        wx.showToast({
+          title: '您未登录，请先登录',
+          icon: 'none'
+        })
+      }
     })
+    
   },
   functionItemClick(e) {
     wx.getStorage({
@@ -107,7 +132,7 @@ Page({
       },
       fail: function (res) {
         wx.showToast({
-          title: '您未登录，请进入用户管理登陆',
+          title: '您未登录，请先登录',
           icon: 'none'
         })
       }

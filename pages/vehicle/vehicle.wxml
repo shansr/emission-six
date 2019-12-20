@@ -1,6 +1,6 @@
 <!--pages/vehicle/vehicle.wxml-->
 <i-sticky scrollTop="{{scrollTop}}">
-  <i-sticky-item wx-if="{{myVehicles != null && myVehicles.length != 0}}" >
+  <i-sticky-item wx-if="{{myVehicles != null && myVehicles.length != 0}}">
     <view slot="title">
       我的车辆
     </view>
@@ -21,7 +21,7 @@
       </i-cell-group>
     </view>
   </i-sticky-item>
-  <i-sticky-item wx-if="{{authVehicles != null && authVehicles.length != 0}}" >
+  <i-sticky-item wx-if="{{authVehicles != null && authVehicles.length != 0}}">
     <view slot="title">
       激活码车辆
     </view>
@@ -40,6 +40,14 @@
           </i-row>
         </i-cell>
       </i-cell-group>
+    </view>
+  </i-sticky-item>
+  <i-sticky-item wx-if="{{myVehicles.length == 0 && authVehicles.length == 0}}">
+    <view slot="title">
+      无车辆
+    </view>
+    <view slot="content">
+      <text>未获取到车辆列表，请绑定激活码</text>
     </view>
   </i-sticky-item>
 </i-sticky>

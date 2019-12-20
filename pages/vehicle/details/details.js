@@ -15,7 +15,7 @@ Page({
     var thisCtx = this
     console.log(options)
     wx.request({
-      url: 'http://localhost:8080/vehicle/getDetails/' + options.vin,
+      url: 'https://wit.weichai.com/vehicle/getDetails/' + options.vin,
       success: function(e){
         //console.log(e)
         thisCtx.setData({

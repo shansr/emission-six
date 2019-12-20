@@ -79,42 +79,52 @@ Page({
   },
   getUserInfo() {
     var thisCtx = this
+    wx.showLoading({
+      title: '登录中',
+    })
     //获取sessionkey和openid
     wx.login({
       success: function (loginRes) {
+        console.log(loginRes)
         wx.request({
-          url: 'http://localhost:8080/wxAuth/getAuthInfo/' + loginRes.code,
+          url: 'https://wit.weichai.com/wxAuth/getAuthInfo/' + loginRes.code,
           success: function (soRes) {
             //成功获取sessionKey和openid
+            console.log(soRes)
             wx.getUserInfo({
               //成功获取sessionKey和OpenId
               success: res => {
                 //解密数据获取unionId
+                console.log('user info')
+                console.log(res)
                 wx.request({
-                  url: 'http://localhost:8080/wxAuth/decrypt',
+                  url: 'https://wit.weichai.com/wxAuth/decrypt',
                   data: {
                     sessionKey: soRes.data.session_key,
                     data: res.encryptedData,
                     iv: res.iv
                   },
                   success: function (decryptRes) {
-                    //console.log(decryptRes)
+                    console.log(decryptRes)
                     //解密成功,根据unionId获取用户信息，如果没有则注册
                     wx.request({
-                      url: 'http://localhost:8080/user/getByWxId/' + decryptRes.data.unionId,
+                      url: 'https://wit.weichai.com/user/getByWxId/' + decryptRes.data.unionId,
                       success: function (getRes) {
                         console.log(getRes)
                         //本地数据库中无此人
                         if (getRes.data.code == 2) {
                           //进行注册
                           wx.request({
-                            url: 'http://localhost:8080/user/registerByWx',
+                            // url: 'https://wit.weichai.com/user/registerByWx',
+                            url: 'https://wit.weichai.com/user/registerCertainByWx',
                             data: {
                               wxId: decryptRes.data.unionId,
                               imageUrl: res.userInfo.avatarUrl,
-                              nickName: res.userInfo.nickName
+                              nickName: res.userInfo.nickName,
+                              platformId: 2
                             },
                             success: function (regRes) {
+                              wx.hideLoading()
                               console.log(regRes)
                               // 设置本地变量
                               thisCtx.setData({
@@ -127,10 +137,12 @@ Page({
                               userInfo.imageUrl = regRes.data.msg.imageUrl
                               userInfo.nickName = regRes.data.msg.nickName
                               userInfo.id = regRes.data.msg.id
+                              userInfo.unionId = decryptRes.data.unionId
                               wx.setStorageSync("userInfo", userInfo)
                             }
                           })
                         } else if (getRes.data.code == 1) {
+                          wx.hideLoading()
                           // 设置本地变量
                           thisCtx.setData({
                             imageUrl: getRes.data.msg.imageUrl,
@@ -142,14 +154,19 @@ Page({
                           userInfo.imageUrl = getRes.data.msg.imageUrl
                           userInfo.nickName = getRes.data.msg.nickName
                           userInfo.id = getRes.data.msg.id
+                          userInfo.unionId = decryptRes.data.unionId
                           wx.setStorageSync("userInfo", userInfo)
                         }
                       }
                     })
+                  },fail: function(decryptErr){
+                    wx.hideLoading()
                   }
                 })
               }
             })
+          },fail: function(loginErr){
+            wx.hideLoading()
           }
         })
       }

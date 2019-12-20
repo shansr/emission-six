@@ -11,12 +11,13 @@
     "pages/setting/setting",
     "pages/statics/distance/distance",
     "pages/statics/fuelConsumption/fuelConsumption",
-    "pages/statics/speed/speed"
+    "pages/statics/speed/speed",
+    "pages/obd/obd"
   ],
   "window": {
     "navigationBarBackgroundColor": "#1296db",
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "潍柴车联网",
+    "navigationBarTitleText": "潍柴国六",
     "backgroundColor": "#f9f9f9",
     "backgroundTextStyle": "light",
     "enablePullDownRefresh": false

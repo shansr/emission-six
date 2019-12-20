@@ -1,4 +1,4 @@
-/* pages/statics/fuelConsumption/fuelConsumption.wxss */
+/* pages/obd/obd.wxss */
 .drawer-container{
 	width:60vw;
 	height: 100vh;

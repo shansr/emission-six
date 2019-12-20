@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "ec-canvas": "../../../ec-canvas/ec-canvas",
     "i-row": "../../dist/row/index",
     "i-col": "../../dist/col/index",
     "i-drawer": "../../dist/drawer/index",

@@ -28,7 +28,7 @@ Page({
     }],
     myVehicles: [],
     authVehicles: [],
-    currentVehicle:{},
+    currentVehicle: {},
     scrollTop: 0
   },
 
@@ -39,10 +39,9 @@ Page({
     var thisCtx = this
     var userInfo = wx.getStorageSync('userInfo')
     wx.request({
-      url: 'http://localhost:8080/vehicle/getByOwner/' + userInfo.id,
+      url: 'https://wit.weichai.com/vehicle/getByOwner/' + userInfo.id,
       success: function (e) {
-        //console.log(e.data.message)
-        if(e.data.code == 1){
+        if (e.data.code == 1) {
           thisCtx.setData({
             myVehicles: e.data.message
           })
@@ -50,9 +49,10 @@ Page({
       }
     })
     wx.request({
-      url: 'http://localhost:8080/vehicle/getByAuth/' + userInfo.id,
+      url: 'https://wit.weichai.com/vehicle/getByAuth/' + userInfo.id,
       success: function (e) {
-        if(e.data.code == 1){
+        console.log(e)
+        if (e.data.code == 1) {
           thisCtx.setData({
             authVehicles: e.data.message
           })
@@ -76,18 +76,15 @@ Page({
       scope: 'scope.address',
       success: function (e) {
         wx.onSocketMessage(function (res) {
-          var jsonObj = JSON.parse(res.data);
-          //console.log(jsonObj)
+          var jsonObj = JSON.parse(JSON.parse(res.data))
           var point = util.transformFromWGSToGCJ(jsonObj.latitude, jsonObj.longitude)
-          var content = 
-            '车牌号：' + thisCtx.data.currentVehicle.vehicle.plateNo+"\n" + 
+          var content =
+            '车牌号：' + thisCtx.data.currentVehicle.vehicle.plateNo + "\n" +
             '车速：' + jsonObj.vehicleSpeed.toFixed(2) + ' Km/h\n' +
             '转速：' + jsonObj.engineSpeed.toFixed(2) + ' rpm\n' +
             '总里程：' + jsonObj.totalTrip.toFixed(2) + ' Km\n' +
             '大气压力：' + jsonObj.airPressure.toFixed(2) + ' kPa\n' +
             '冷却液温度：' + jsonObj.coolantTemperature.toFixed(2) + ' ℃\n'
-
-          //thisCtx.data.polyline.points.push(point)
           thisCtx.setData({
             latitude: point.latitude,
             longitude: point.longitude,
@@ -97,17 +94,16 @@ Page({
             'polylines[0].points': thisCtx.data.polylines[0].points.concat(point)
           })
         }),
-          console.log(e)
         wx.getLocation({
           success: function (res) {
-            //console.log(res)
             thisCtx.setData({
               latitude: res.latitude,
               longitude: res.longitude
             })
           },
         })
-      },fail:function(e){
+      },
+      fail: function (e) {
         wx.navigateTo({
           url: '../setting/setting',
         })
@@ -128,10 +124,8 @@ Page({
   onUnload: function () {
     if (this.data.isSocketOpen) {
       wx.closeSocket({
-        success: function (e) {
-        },
+        success: function (e) { },
         fail: function (e) {
-          //console.log(e)
         }
       })
     }
@@ -162,11 +156,10 @@ Page({
     })
   },
   vehicleItemDetailsClick(e) {
-    console.log(e)
+    
   },
   vehicleItemMonitorClick(e) {
     var thisCtx = this
-    console.log(e)
     thisCtx.setData({
       currentVehicle: e.currentTarget.dataset
     })
@@ -174,10 +167,10 @@ Page({
     if (thisCtx.data.isSocketOpen) {
       wx.closeSocket({
         success: function (e) {
-          
-         },
+
+        },
         fail: function (e) {
-          console.log(e)
+          
         }
       })
     }
@@ -197,14 +190,13 @@ Page({
     var thisCtx = this
     wx.getLocation({
       success: function (res) {
-        console.log(res)
         thisCtx.setData({
           latitude: res.latitude,
           longitude: res.longitude
         })
       },
     })
-  }, 
+  },
   onPageScroll(event) {
     this.setData({
       scrollTop: event.scrollTop
